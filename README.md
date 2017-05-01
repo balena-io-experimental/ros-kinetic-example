@@ -16,4 +16,4 @@ to the appropriate pins on the Bluefruit microcontroller as described in
 
 Happy ROS hacking!
 
-![Adafruit robot with resin.io Raspberry Pi controller][img/robot.jpg]
+![Adafruit robot with resin.io Raspberry Pi controller](img/robot.jpg)
