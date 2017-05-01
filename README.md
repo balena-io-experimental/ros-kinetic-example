@@ -1,8 +1,8 @@
 Example of building a Robot OS image for resin.io
 =================================================
 
-This project will build a Robot OS (ROS) Kinetic image and deploy it to a
-Raspberry Pi using [resin.io](https://resin.io).
+This project will build a [Robot OS (ROS)](http://www.ros.org/) Kinetic image
+and deploy it to a Raspberry Pi using [resin.io](https://resin.io).
 
 The Dockerfile will build a generic ROS Kinetic image and a set of scripts to
 perform very simple commands on an Adafruit Bluefruit controlled robot chassis
