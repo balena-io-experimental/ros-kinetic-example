@@ -1,0 +1,38 @@
+### Connect to Bluefruit device with gatttool:
+# Hex address is the BLE MAC, -I is interactive, -t random is needed to work
+sudo gatttool -b FE:70:9B:93:38:52 -I -t random
+# Now connect to the device:
+[FE:70:9B:93:38:52][LE]> connect
+Attempting to connect to FE:70:9B:93:38:52
+Connection successful
+
+
+
+### Control the device:
+# 0x25 = UART listener on the Bluefruit
+# String sent is:
+#  !Bxvc
+#  !      starts the command string
+#   B     indicates that it is a button pressed
+#    x    should be a value 1-8 for which button (up = 5, down = 6, left = 7, right = 8)
+#     v   1 if pressed, 0 if released
+#      c  CRC
+# See https://learn.adafruit.com/bluefruit-le-connect-for-ios/controller
+# (Note that the accelerometer is supported if we want to pull data from a microbit!)
+
+# NB: not passing c generates a CRC error on the Bluefruit as we are not setting a proper CRC
+# This does not stop it from working but it would be nice to fix in code later...
+
+# Also note that buttons are considered to be held until a release is sent.  So sending two
+# presses in a row without a release between may not generate expected results.
+
+# Press button 1:
+[FE:70:9B:93:38:52][LE]> char-write-cmd 0x25 21423131
+
+
+# Press "Forward"
+[FE:70:9B:93:38:52][LE]> char-write-cmd 0x25 21423531
+
+# Release "Forward"
+[FE:70:9B:93:38:52][LE]> char-write-cmd 0x25 21423530
+
