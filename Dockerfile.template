@@ -1,0 +1,45 @@
+FROM resin/%%RESIN_MACHINE_NAME%%-debian:jessie
+
+RUN echo "deb http://packages.ros.org/ros/ubuntu xenial main" > /etc/apt/sources.list.d/ros-latest.list
+RUN apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
+RUN    apt-get update \
+    && apt-get -y install \
+        python-rosdep \
+        python-rosinstall-generator \
+        python-wstool \
+        python-rosinstall \
+        build-essential \
+        cmake \
+        wget \
+        unzip \
+    && apt-get clean
+
+COPY catkin_ws /ros/catkin_ws
+WORKDIR /ros/catkin_ws
+
+ENV ROSDISTRO=kinetic
+# Install ROS following instructions here:
+# http://wiki.ros.org/ROSberryPi/Installing%20ROS%20Kinetic%20on%20the%20Raspberry%20Pi
+RUN rosinstall_generator ros_comm --rosdistro ${ROSDISTRO} --deps --wet-only --tar > ${ROSDISTRO}-ros_comm-wet.rosinstall
+RUN wstool init src ${ROSDISTRO}-ros_comm-wet.rosinstall
+
+RUN    mkdir -p external_src \
+    && cd external_src \
+    && wget http://sourceforge.net/projects/assimp/files/assimp-3.1/assimp-3.1.1_no_test_models.zip/download -O assimp-3.1.1_no_test_models.zip \
+    && unzip assimp-3.1.1_no_test_models.zip \
+    && cd assimp-3.1.1 \
+    && cmake . \
+    && make \
+    && make install \
+    && cd .. \
+    && rm -rf assimp-3.1.1*
+
+RUN    rosdep init \
+    && rosdep update \
+    && rosdep install -y --from-paths src --ignore-src --rosdistro ${ROSDISTRO} -r --os=debian:jessie
+RUN ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/${ROSDISTRO}
+RUN echo source /opt/ros/${ROSDISTRO}/setup.bash >> ~/.bashrc
+
+COPY control start.sh /ros/
+
+CMD sleep infinity
